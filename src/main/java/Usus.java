@@ -7,7 +7,7 @@ public class Usus {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*****BIENVENIDOS*****");
 
-        System.out.println("Deseas crear un usuario o eliminar un usuario?: ");
+        System.out.println("Deseas crear un usuario, eliminar un usuario o editar un usuario?: ");
         String respuesta = scanner.nextLine();
 
         if (respuesta.equals("crear usuario")) {
@@ -15,8 +15,8 @@ public class Usus {
             System.out.println("Ingrese el nombre: ");
             String nombreusuario = scanner.nextLine();
 
-            String nombrebd =   Select_One(nombreusuario);
-            if (nombrebd.equals("")){
+            String nombrebd = Select_One(nombreusuario);
+            if (nombrebd.equals("")) {
                 System.out.println("Ingrese documento de identidad: ");
                 String documento = scanner.nextLine();
 
@@ -31,22 +31,77 @@ public class Usus {
                 if (nombreusuario.equals("") || documento.equals("") || usuario.equals("") || pass.equals("")) {
                     System.out.println("No se admiten datos vacios.");
 
-            }
+                }
 
-            }else{
+            } else {
                 System.out.println("Este usuario ya se encuentra registrado");
             }
 
-            }if (respuesta.equals("eliminar usuario")) {
+        }
+        if (respuesta.equals("eliminar usuario")) {
             System.out.println("Que nombre de usuario deseas eliminar? ");
             String nombreusuario = scanner.nextLine();
             String busqueda = Select_One(nombreusuario);
-            if (busqueda.equals("")){
+            if (busqueda.equals("")) {
                 System.out.println("Este usuario no se encuentra registrado");
-            }else {
+            } else {
                 Eliminar(nombreusuario);
             }
         }
+        String nombreusuario = null;
+
+        if (respuesta.equals("editar usuario")) {
+
+            System.out.println("Que nombre de usuario deseas actualizar? ");
+            nombreusuario = scanner.nextLine();
+
+            if (Select_One(nombreusuario).equals("")) {
+                System.out.println("No se encuentra este usuario");
+            } else {
+
+
+                System.out.print("Actualice el documento: ");
+                String documento = scanner.nextLine();
+
+                System.out.print("Actualice el usuario: ");
+                String usuario = scanner.nextLine();
+
+                System.out.print("Actualice la contrase\u00f1a: ");
+                String pass = scanner.nextLine();
+
+                Editar(nombreusuario, documento, usuario, pass);
+
+            }
+        }
+    }
+
+    private static void Editar(String nombreusuario, String documento, String usuario, String pass) throws ClassNotFoundException, SQLException {
+        String driver2 = "com.mysql.cj.jdbc.Driver";
+        String url2 = "jdbc:mysql://localhost:3306/usuarios";
+        String username2 = "root";
+        String pass2 = "";
+
+        Class.forName(driver2);
+        Connection connection2 = DriverManager.getConnection(url2, username2, pass2);
+
+        Statement statement2 = connection2.createStatement();
+
+        String consulta = "UPDATE usus SET documento = ?, usuario = ?, pass = ? WHERE nombre = ?";
+        PreparedStatement preparedStatement = connection2.prepareStatement(consulta);
+        preparedStatement.setString(1, documento);
+        preparedStatement.setString(2, usuario);
+        preparedStatement.setString(3, pass);
+        preparedStatement.setString(4, nombreusuario);
+
+        int filasActualizadas = preparedStatement.executeUpdate();
+        if (filasActualizadas > 0) {
+            System.out.println("Usuario actualizado exitosamente");
+        } else {
+            System.out.println("No se encontró un usuario para actualizar");
+        }
+
+        preparedStatement.close();
+        connection2.close();
     }
 
     private static String Select_One(String Nombre) throws ClassNotFoundException, SQLException {
